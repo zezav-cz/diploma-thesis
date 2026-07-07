@@ -1,0 +1,309 @@
+%% This is the ctufit-thesis example file. It is used to produce theses
+%% for submission to Czech Technical University, Faculty of Information Technology.
+%%
+%% This is version 1.6.0, built 18. 9. 2025.
+%% 
+%% Get the newest version from
+%% https://gitlab.fit.cvut.cz/theses-templates/FITthesis-LaTeX
+%%
+%%
+%% Copyright 2024, Tomas Novacek
+%% Copyright 2021, Eliska Sestakova and Ondrej Guth
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%  https://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `maintained'.
+%%
+%% The current maintainer of this work is Tomas Novacek (novacto3@fit.cvut.cz).
+%% Alternatively, submit bug reports to the tracker at
+%% https://gitlab.fit.cvut.cz/theses-templates/FITthesis-LaTeX/issues
+%%
+%%
+
+% arara: xelatex
+% arara: biber
+% arara: xelatex
+% arara: xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CLASS OPTIONS
+% language: czech/english/slovak
+% thesis type: bachelor/master/dissertation/doctoral-report
+% electronic (oneside) or printed (twoside), twoside is default
+% paragraph - if passed, this optional argument sets paragraphs as the deepest level of headers, styles it, numbers it and adds it to Table of Content. Use with care! Normally, it is considered unwise to use it, since it is too deep.
+% colour: bw for black&white OR no option for default colour scheme
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[english,master,oneside]{ctufit-thesis}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILL IN THIS INFORMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ctufittitle{Design and Implementation of a Scalable, On-Premise Infrastructure for Large-Scale Data Gathering, Processing, and Storage in Machine Learning Applications}
+\ctufitauthorfull{Bc. Jan Troják}
+\ctufitauthorsurnames{Troják}
+\ctufitauthorgivennames{Jan}
+\ctufitsupervisor{Ing. Tomáš Vondra\, Ph.D.}
+\ctufitdepartment{Department of Computer Systems}
+\ctufitprogram{Informatika}
+\ctufitspecialisation{Computer Systems and Networks}
+\ctufityear{2026}
+\ctufitdeclarationplace{Prague}
+\ctufitdeclarationdate{\today}
+\ctufitabstractCZE{Tato práce popisuje návrh soukromého výpočetního prostředí pro shromažďování a analýzu velkých sbírek digitálních obrazů. Systém řeší běžný problém s efektivitou, kdy správa milionů jednotlivých malých položek způsobuje zpomalení systémů kvůli administrativní zátěži. Díky volbě specializované metody ukládání, která uchovává informace o adresářích v rychlé paměti a seskupuje položky do větších balíčků, systém zajišťuje téměř okamžitý přístup k jakémukoliv souboru. Toto nastavení bylo vytvořeno na specializovaném fyzickém hardwaru, aby bylo možné plně kontrolovat soukromí dat a náklady a vyhnout se nutnosti veřejného internetového úložiště.
+
+Druhá část práce představuje automatizovaný zpracovatelský proces, který umožňuje transformaci dat, například výpočet obrazových reprezentací. Tento proces je navržen tak, aby byl vysoce dostupný a škálovatelný na základě pracovní zátěže. Díky použití automatizovaných škálovacích mechanismů systém aktivně přizpůsobuje své zdroje v závislosti na objemu příchozích úkolů, čímž udržuje vysokou propustnost během špiček a zároveň optimalizuje efektivitu při nízké zátěži.}
+\ctufitabstractENG{This thesis describes the design of a private computing environment for gathering and analyzing large collections of digital images. The system solves a common efficiency problem where managing millions of individual small items causes systems to slow down due to administrative overhead. By choosing a specialized storage method that keeps the directory information in fast memory and groups items into larger packages, the system ensures nearly instant access to any single item. This setup was built on dedicated physical hardware to provide full control over data privacy and costs, avoiding the need for public internet-based storage.
+
+The second part of the thesis presents an automated processing pipeline that enables data transformation, such as computing image representations. This pipeline is designed to be highly available and scalable based on the workload. Through the use of automated scaling mechanisms, the system actively adjusts its resources in response to the volume of incoming tasks, maintaining high throughput during peak periods while optimizing efficiency when the load is low.}
+\ctufitkeywordsCZE{Infrastruktura strojového učení, Zpracování obrazu, Distribuované ukládání dat, Problém malých souborů, Datové potrubí, On-premise řešení, Automatické škálování}
+\ctufitkeywordsENG{Machine learning infrastructure, Image processing, Distributed data storage, Small file problem, Data pipelines, On-premise solutions, Performance autoscaling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% END FILL IN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CUSTOMIZATION of this template
+% Skip this part or alter it if you know what you are doing.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{iftex}[2020/03/06]
+\iftutex % XeLaTeX and LuaLaTeX
+    \RequirePackage{ellipsis}[2020/05/22] %ellipsis workaround for XeLaTeX
+\else
+    \errmessage{Only compilation with XeLaTeX or LuaLaTeX is allowed}
+    \stop
+\fi
+
+% hyperlinks
+\hypersetup{
+    pdfpagelayout=TwoPageRight,
+    colorlinks=true,
+    allcolors=decoration,
+    pdfborder={0 0 0}
+}
+
+% uncomment the following to hide all hyperlinks
+%\hypersetup{hidelinks}
+
+% uncomment the following to change the colour of all hyperlinks to CTU blue
+\hypersetup{allbordercolors=decoration}
+
+\RequirePackage{pdfpages}[2020/01/28]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CUSTOMIZATION of this template END
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% PACKAGES SETTINGS
+% You may choose to modify this part.
+%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{dirtree}
+\usepackage{lipsum,tikz}
+\usepackage{newtxtt} % Better monospaced font with TU encoding support
+\usepackage{fontspec}        % Základ pro XeLaTeX/LuaLaTeX
+\usepackage{polyglossia}     % Náhrada za Babel pro moderní překladače
+\setmainlanguage{english}    % Hlavní jazyk
+\setotherlanguage{czech}     % Vedlejší jazyk
+\usepackage[style=iso-numeric]{biblatex}
+\setcounter{biburlucpenalty}{8000}
+\addbibresource{./dt.bib}
+\usepackage{xurl}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{graphicx}
+% \usepackage{listings} % typesetting of sources
+%\usepackage{minted}
+% \usepackage{microtype}
+\usepackage{csquotes}
+\usepackage{tgcursor}
+%%%%%%%%%%%%%%%%%%%%%%
+% PACKAGES SETTINGS END
+
+
+\newcommand{\term}[1]{\mbox{\texttt{#1}}}
+\setlength{\bibitemsep}{1em}
+\begin{document}
+\frontmatter\frontmatterinit % do not remove these two commands
+
+\thispagestyle{empty}\maketitle\thispagestyle{empty}\cleardoublepage
+
+\includepdf[pages={1-}]{trojaj12-assignment.pdf} % replace this file with your thesis assignment generated from ProjectsFIT
+
+\imprintpage % do not remove this command
+\stopTOCentries
+
+%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENT
+% FILL IN / MODIFY
+% This is a place to thank people for helping you. It is common to thank your supervisor.
+%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENT END
+%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%
+% DECLARATION
+% FILL IN / MODIFY
+%%%%%%%%%%%%%%%%%%%
+% INSTRUCTIONS
+% ENG: choose one of approved texts of the declaration. DO NOT CREATE YOUR OWN. Find the approved texts at https://courses.fit.cvut.cz/SFE/download/index.html#_documents (document Declaration for FT in English)
+% CZE/SLO: Vyberte jedno z fakultou schvalenych prohlaseni. NEVKLADEJTE VLASTNI TEXT. Schvalena prohlaseni najdete zde: https://courses.fit.cvut.cz/SZZ/dokumenty/index.html#_dokumenty (prohlášení do ZP)
+\begin{declarationpage}
+I hereby declare that the presented thesis is my own work and that I have cited all sources of
+information in accordance with the Guideline for adhering to ethical principles when elaborating an
+academic final thesis.
+
+I acknowledge that my thesis is subject to the rights and obligations stipulated by the Act No.
+121/2000 Coll., the Copyright Act, as amended. In accordance with Section 2373(2) of Act No.
+89/2012 Coll., the Civil Code, as amended, I hereby grant a non-exclusive authorization (licence) to
+utilize this thesis, including all computer programs that are part of it or attached to it and all
+documentation thereof (hereinafter collectively referred to as the "Work"), to any and all persons
+who wish to use the Work. Such persons are entitled to use the Work in any manner that does not
+diminish the value of the Work and for any purpose (including use for profit). This authorisation is
+unlimited in time, territory and quantity
+
+I declare that I have used AI tools during the preparation and writing of my thesis. I have verified
+the generated content. I confirm that I am aware that I am fully responsible for the content of the
+thesis.
+\end{declarationpage}
+
+%%%%%%%%%%%%%%%%%%%
+% DECLARATION END
+%%%%%%%%%%%%%%%%%%%
+
+% Use one of the two following commands. The first prints abstracts+keywords on two pages, the second puts them on one page (if possible). \printonepageabstract can also accept optional argument that specifies a vertical space before both abstracts (the default is 18 mm).
+\printtwopageabstract
+%\printonepageabstract 
+
+%%%%%%%%%%%%%%%%%%%
+% SUMMARY
+% FILL IN / MODIFY
+% OR REMOVE ENTIRELY (upon agreement with your supervisor)
+% (appropriate to remove in most theses)
+%%%%%%%%%%%%%%%%%%%
+% \begin{summarypage}
+% \section*{Summary section}
+% 
+% \lipsum[1][1-8]
+% 
+% \section*{Summary section}
+% 
+% \lipsum[2][1-6]
+% 
+% \section*{Summary section}
+% 
+% \lipsum[3]
+% 
+% \section*{Summary section}
+% 
+% \lipsum[2]
+% 
+% \section*{Summary section}
+% 
+% \lipsum[1][1-8] Lorem lorem lorem.
+% \end{summarypage}
+%%%%%%%%%%%%%%%%%%%
+% SUMMARY END
+%%%%%%%%%%%%%%%%%%%
+
+\tableofcontents % do not remove this command
+%%%%%%%%%%%%%%%%%%%%%%
+% list of other contents: figures, tables, code listings, algorithms, etc.
+% add/remove commands accordingly
+%%%%%%%%%%%%%%%%%%%%%%
+\listoffigures % list of figures
+\begingroup
+\let\clearpage\relax
+\listoftables % list of tables. Remove if you do not have any.
+% \thectufitlistingscommand{} % list of code listings. Remove if you do not have any.
+\thectufitlistofalgorithmscommand{} % list of algorithm pseudocodes defined using the algorithm package.
+\endgroup
+%%%%%%%%%%%%%%%%%%%%%%
+% list of other contents END
+%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%
+% ABBREVIATIONS
+% FILL IN / MODIFY
+% OR REMOVE ENTIRELY
+% List the abbreviations in lexicography order.
+%%%%%%%%%%%%%%%%%%%
+\chapter{\thectufitabbreviationlabel}
+{
+    \definecolor{myAcronymColor}{RGB}{0, 0, 0}
+    \fontsize{10pt}{12pt}\selectfont
+    \begin{description}[
+        font=\normalfont\bfseries\color{myAcronymColor}, 
+        nosep,                       % No vertical space between items
+        align=right,                 % Align shortcuts to the left
+        labelwidth=4.5em,            % Fixed width for the shortcut column
+        leftmargin=12.0em,           % labelwidth + some padding for the description
+    ]
+        \item[AI] Artificial Intelligence
+        \item[API] Application Programming Interface
+        \item[CNCF] Cloud Native Computing Foundation
+        \item[CRD] Custom Resource Definition
+        \item[CSI] Container Storage Interface
+        \item[DAG] Directed Acyclic Graph
+        \item[DB] Database
+        \item[DNS] Domain Name System
+        \item[DRBD] Distributed Replicated Storage System
+        \item[FS] File System
+        \item[HA] High Availability
+        \item[IaC] Infrastructure as Code
+        \item[ID] Identifier
+        \item[IO] Input/Output
+        \item[IOPS] Input/Output Operations Per Second
+        \item[LVM] Logical Volume Manager
+        \item[ML] Machine Learning
+        \item[NFS] Network File System
+        \item[NHR] National High-Performance Computing
+        \item[OSD] Object Storage Device
+        \item[POSIX] Portable Operating System Interface
+        \item[QoS] Quality of Service
+        \item[RADOS] Reliable Autonomic Distributed Object Store
+        \item[REST] Representational State Transfer
+        \item[SDK] Software Development Kit
+        \item[SDN] Software-Defined Networking
+        \item[SDStorage] Software-Defined Storage
+        \item[SDSys] Software-Defined System
+        \item[SSD] Solid State Drive
+        \item[UI] User Interface
+        \item[ZFS] Zettabyte File System
+        
+    \end{description}
+}
+%%%%%%%%%%%%%%%%%%%
+% ABBREVIATIONS END
+%%%%%%%%%%%%%%%%%%%
+\resumeTOCentries
+\mainmatter\mainmatterinit % do not remove these two commands
+%%%%%%%%%%%%%%%%%%%
+% THE THESIS
+% MODIFY ANYTHING BELOW THIS LINE
+%%%%%%%%%%%%%%%%%%%
+
+\include{text/text} % include `text.tex' from `text/' subdirectory
+
+\appendix\appendixinit % do not remove these two commands
+
+\include{text/appendix}
+
+\backmatter % do not remove this command
+
+{
+\raggedright
+\printbibliography
+}
+
+\end{document}

@@ -1,0 +1,47 @@
+# Git files
+.git
+.gitignore
+.gitlab-ci.yml
+
+# Development files
+.aider*
+.vscode/
+.hypothesis/
+.env
+.env.example
+.kafkactl.yml
+lefthook.yml
+mise.toml
+dev.md
+
+# Build artifacts
+downloader
+image-downloader
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/dist/
+/build/
+.task/
+
+# Dependencies
+vendor/
+
+# Documentation
+README.md
+*.md
+
+# Test and deployment files
+tests/
+deployments/
+examples/
+scripts/
+tmp/
+
+# Python virtual environments
+.venv
+venv/
+env/

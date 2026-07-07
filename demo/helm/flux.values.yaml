@@ -1,0 +1,35 @@
+---
+clusterDomain: cluster.local
+kustomizeController:
+  create: false
+  # reosurces:
+  #   limits: { cpu: 1000m, memory: 1Gi }       # defaults
+  #   requests: { cpu: 100m, memory: 640Mi }    # defaults
+  # container:
+  #   additionalArgs:
+  #     - "--concurrent=10"                     # The number of concurrent kustomize reconciles.
+  #     - "--concurrent-ssa=10"                 # The number of concurrent server-side apply operations.
+  #     - "--requeue-dependency=5s"             # The interval at which failing dependencies are reevaluated
+helmController:
+  reosurces:
+    limits: { cpu: 1000m, memory: 1Gi }       # defaults
+    requests: { cpu: 100m, memory: 640Mi }    # defaults
+  container:
+    additionalArgs:
+      - "--concurrent=5"
+      - "--requeue-dependency=5s"
+imageAutomationController:
+  create: false
+imageReflectionController:
+  create: false
+notificationController:
+  create: false
+sourceController:
+  reosurces:
+    limits: { cpu: 1000m, memory: 1Gi }       # defaults
+    requests: { cpu: 100m, memory: 640Mi }    # defaults
+logLevel: info                                # defaults
+watchAllNamespaces: true                      # defaults
+prometheus:
+  podMonitor:
+    create: false                             # for initial setup disable

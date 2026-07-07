@@ -1,0 +1,15 @@
+# Lefthook configuration
+# See https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+
+pre-commit:
+  parallel: false
+  commands:
+    # Lint check - catch code quality issues
+    python-lint:
+      glob: "*.py"
+      run: uv run ruff check {staged_files}
+
+    # Format check - verify code is formatted correctly
+    python-format-check:
+      glob: "*.py"
+      run: uv run black --check {staged_files}

@@ -1,0 +1,14 @@
+*.d.ts
+*.js
+!jest.config.js
+node_modules
+dist/
+dist-tf/
+local/clusters/
+.rcli.yaml
+.task/
+.venv/
+venv/
+.env
+.terraform/
+.terraform*

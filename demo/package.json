@@ -1,0 +1,39 @@
+{
+  "name": "cdk8s",
+  "version": "1.0.0",
+  "main": "main.js",
+  "types": "main.ts",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"{clusters,lib,infra}/**/*.{ts,js,json,yaml}\"",
+    "format-check": "prettier --check \"{clusters,lib,infra}/**/*.{ts,js,json,yaml}\"",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint-fix": "eslint --fix . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "cdk8s": "^2.70.6",
+    "constructs": "^10.4.2",
+    "dotenv": "^16.6.1",
+    "ini": "^5.0.0",
+    "semver": "^7.7.2",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/ini": "^4.1.1",
+    "@types/node": "^14",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.35.0",
+    "cdk8s-cli": "^2.200.148",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-editorconfig": "^4.0.3",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsonc": "^2.20.1",
+    "eslint-plugin-prettier": "^5.5.0",
+    "eslint-plugin-unicorn": "^50.0.1",
+    "prettier": "^3.5.1",
+    "ts-node": "^10"
+  }
+}

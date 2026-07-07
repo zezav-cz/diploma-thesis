@@ -1,0 +1,26 @@
+[tools]
+editorconfig-checker = "3.6"
+lefthook = "2"
+prettier = "3.8"
+ruby = "3.2"
+
+[env]
+BOLT_GEM = true
+
+[tasks.lint]
+description ="Lint puppet code"
+run = """
+bundle exec puppet-lint .
+prettier -c .
+ec
+"""
+
+[tasks.fix]
+description = "Fixes puppet code"
+run = """
+bundle exec puppet-lint . -f
+"""
+
+[tasks.modules]
+description = "Installs bolt modules"
+run = "bundle exec bolt module install"

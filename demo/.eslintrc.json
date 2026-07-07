@@ -1,0 +1,65 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [ "@typescript-eslint", "import", "prettier" ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2019,
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
+    "plugin:jsonc/base",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "rules": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "warn",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": false,
+        "ignoreDeclarationSort": true, // we let import/order handle declaration sort
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": [ "none", "all", "multiple", "single" ]
+      }
+    ],
+    // Sort entire import declarations (and enforce newline grouping)
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          [ "parent", "sibling", "index" ]
+        ],
+        "newlines-between": "always"
+      }
+    ],
+    // NameingConvention rules
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "classProperty",
+        "format": [ "camelCase" ],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "classProperty",
+        "modifiers": [ "static" ],
+        "format": [ "UPPER_CASE" ]
+      },
+      {
+        "selector": "class",
+        "format": [ "PascalCase" ]
+      }
+    ]
+  }
+}

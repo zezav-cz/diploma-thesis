@@ -1,0 +1,27 @@
+[tools]
+python = "3.12"
+uv = "0.9"
+
+[settings]
+python.uv_venv_auto = true
+lockfile = true
+
+[tasks.format]
+description = "Format code using black"
+run = "uv run --with ruff ruff format ."
+
+[tasks.lint]
+description = "Lint code using ruff"
+run = "uv run --with ruff ruff check ."
+
+[tasks.lint-fix]
+description = "Format and fix code using ruff"
+run = "uv run --with ruff ruff check --fix ."
+
+[tasks.build-load]
+description = "Build and load Docker image into local Docker daemon"
+env = { IMAGE_NAME = "embeder:latest" }
+run = [
+    "docker buildx build -t $IMAGE_NAME .",
+    "kind load docker-image $IMAGE_NAME --name diploma-thesis"
+]

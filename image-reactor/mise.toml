@@ -1,0 +1,39 @@
+[tools]
+lefthook = "1.12"
+uv = "0.8"
+
+[settings]
+python.uv_venv_auto = true
+lockfile = true
+
+[tasks.openapi]
+description = "Generate OpenAPI specification"
+run = "uv run python export_openapi.py"
+
+[tasks.format]
+description = "Format code with black"
+run = "uv run black ."
+
+[tasks.lint]
+description = "Lint code with ruff"
+run = "uv run ruff check ."
+
+[tasks.lint-fix]
+description = "Lint and fix code with ruff, autoflake, and eradicate"
+run = "uv run ruff check --fix ."
+
+[tasks.test]
+description = "Run tests with pytest"
+run = "uv run pytest"
+
+[tasks.build-load]
+description = "Build and load Docker image into local Docker daemon"
+env = { IMAGE_NAME = "image-reactor:latest" }
+run = [
+    "docker buildx build -t $IMAGE_NAME .",
+    "kind load docker-image $IMAGE_NAME --name diploma-thesis"
+]
+
+[tasks.run]
+description = "Run the application"
+run = "uv run main.py"

@@ -1,0 +1,107 @@
+[tools]
+checkov = "3"
+editorconfig-checker = "3.3"
+helm = "4"
+k9s = "0.50"
+kafka = "apache-4.1.0"
+kafkactl = "5.14"
+kube-linter = "0.7"
+kustomize = "5"
+node = "24"
+task = "3"
+uv = "0.9"
+
+[tasks.install]
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.format]
+description = "Format the code using Prettier"
+run = "npm run format"
+
+[tasks.format-check]
+description = "Check the code formatting using Prettier"
+run = "npm run format-check"
+
+[tasks.lint]
+description = "Lint the code using ESLint"
+run = "npm run lint"
+
+[tasks.lint-fix]
+description = "Lint and fix the code using ESLint"
+run = "npm run lint-fix"
+
+[tasks.kube-lint]
+description = "Lint the Kubernetes resources"
+depends = ["build"]
+run = '''
+checkov -d dist --framework kubernetes --compact --skip-check CKV_K8S_43
+kube-linter lint dist
+'''
+
+[tasks.build]
+description = "Build the cdk8s app"
+dir = "src"
+sources = ["./**/*.ts", "../../imports/**/*.ts"]
+outputs = ["dist/*.yaml"]
+run = '''
+npx cdk8s synth
+for dir in dist/*; do
+  [ -d "$dir" ] && [ ! -f "$dir/kustomization.yaml" ] && (cd "$dir" && kustomize create --autodetect --recursive)
+done
+'''
+
+[tasks.up]
+description = "Spins up k9s"
+run = "kind create cluster --config local/kind.yaml"
+
+[tasks.down]
+description = "Tears down k9s"
+run = "kind delete cluster --name diploma-thesis"
+
+[tasks.load-images]
+description = "Loads Docker images into the kind cluster"
+run = '''
+#!/bin/bash
+IMAGES=(
+    "ghcr.io/kedacore/keda-metrics-apiserver:2.18.2"
+    "ghcr.io/kedacore/keda-admission-webhooks:2.18.2"
+    "ghcr.io/kedacore/keda:2.18.2"
+    "quay.io/prometheus/prometheus:v3.4.2"
+    "quay.io/prometheus-operator/prometheus-config-reloader:v0.84.1"
+    "docker.io/grafana/grafana:12.1.0"
+    "ghcr.io/grafana/grafana-operator:v5.20.0"
+    "registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.1"
+    "quay.io/prometheus-operator/prometheus-operator:v0.84.1"
+    "quay.io/prometheus/node-exporter:v1.9.1"
+    "ghcr.io/fluxcd/flux-cli:v2.5.1"
+    "quay.io/strimzi/operator:0.48.0"
+    "ghcr.io/kafbat/kafka-ui:v1.2.0"
+    "ghcr.io/telepresenceio/tel2:2.25.0"
+    "quay.io/strimzi/kafka:0.48.0-kafka-4.1.0"
+    "ghcr.io/fluxcd/source-controller:v1.5.0"
+    "ghcr.io/fluxcd/helm-controller:v1.2.0"
+)
+printf "%s\n" "${IMAGES[@]}" | xargs -P 0 -I{} docker pull {}
+printf "%s\n" "${IMAGES[@]}" | xargs -P 4 -I{} kind load docker-image {} --name diploma-thesis
+'''
+
+[tasks.init]
+description = "Initializes the project"
+depends = ["load-images"]
+run = '''
+helm upgrade --install --create-namespace \
+  --repo="https://fluxcd-community.github.io/helm-charts" \
+  --namespace="flux-system" \
+  --timeout 5m \
+  --version="2.15.0" \
+  flux flux2 --values "helm/flux.values.yaml"
+'''
+
+[tasks.build-programs]
+description = "Builds Docker images for local development"
+run = "docker build -t zezav/kafka-downloader:latest -f ./programs/downloader-consumer/Dockerfile ./programs/downloader-consumer"
+
+[tasks.load-programs]
+description = "Loads program Docker images into the kind cluster"
+run = "kind load docker-image zezav/kafka-downloader:latest --name diploma-thesis"

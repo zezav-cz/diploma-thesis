@@ -1,0 +1,41 @@
+---
+name: image_store
+analytics: false
+color: true
+format: human
+modulepath:
+  - site
+apply-settings:
+  evaltrace: true
+  show_diff: true
+  trace: true
+plans:
+  - image_store::master
+  - image_store::ping
+  - image_store::volume
+log:
+  console:
+    level: debug
+  'bolt-debug.log': disable
+modules:
+  - name: puppet/systemd
+    version_requirement: 9.2.0
+  - name: puppet/archive
+    version_requirement: 8.1.0
+  - name: puppetlabs/stdlib
+    version_requirement: 9.7.0
+  - name: puppetlabs/puppet_agent
+    version_requirement: 4.26.0
+  - name: puppetlabs/ruby_task_helper
+    version_requirement: 1.0.0
+  - name: puppetlabs/inifile
+    version_requirement: 6.2.0
+  - name: puppetlabs/apt
+    version_requirement: 11.1.0
+  - name: puppetlabs/facts
+    version_requirement: 1.7.0
+  - name: puppetlabs/powershell
+    version_requirement: 6.1.0
+  - name: puppetlabs/pwshlib
+    version_requirement: 2.0.0
+

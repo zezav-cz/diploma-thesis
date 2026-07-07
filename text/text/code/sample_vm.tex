@@ -1,0 +1,25 @@
+\begin{lstfloat}
+\begin{lstlisting}[style=mybashstyle,
+caption={Nastavení prostředí pomocí Vagrant},
+label={sample:vm}
+]
+[1]$ cat > Vagrantfile <<EOF
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+end
+EOF
+[1]$ vagrant up
+[1]$ vagrant ssh
+[2]$ hostnamectl
+>>>   Static hostname: localhost.localdomain
+>>>         Icon name: computer-vm
+>>>           Chassis: vm
+>>>        Machine ID: d1a6b9d5e7f4af49b5c53c99d86d520b
+>>>           Boot ID: 077a2c59fd4545889bb1566fd23d5c58
+>>>    Virtualization: kvm
+>>>  Operating System: CentOS Linux 7 (Core)
+>>>       CPE OS Name: cpe:/o:centos:centos:7
+>>>            Kernel: Linux 3.10.0-1127.el7.x86_64
+>>>      Architecture: x86-64
+\end{lstlisting}
+\end{lstfloat}

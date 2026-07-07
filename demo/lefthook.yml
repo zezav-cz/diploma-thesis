@@ -1,0 +1,15 @@
+parallel: true
+pre-commit:
+  commands:
+    format-check:
+      skip: rebase
+      glob: "*.{js,ts,json,yaml,yml}"
+      run: npm run format-check
+    lint:
+      skip: rebase
+      glob: "*.{js,ts,json,yaml,yml}"
+      run: npm run lint
+    editorconfig-chacker_lint:
+      name: Test editorconfig rules
+      skip: rebase
+      run: ec -disable-max-line-length -exclude "(imports/.*/imports/*.)|local/README.md"

@@ -1,0 +1,93 @@
+\chapter{Implementation Part -- Storage}
+\label{ch:impl_storage}
+
+\section{Picture Store Requirements}\label{sec:picture_store_requirements}
+The design and implementation of the storage infrastructure is driven by specific real-world constraints and needs specified by the company Recombee. The company specializes in AI-powered recommendation systems and search. To support advanced content-based recommendation and visual search, the system must ingest and retain massive datasets of raw product images. These images are used to compute vector embeddings and are later used in company products. The storage solution must not only serve as an archive but also provide high-performance access for machine learning pipelines.
+
+To address the challenges of the Small File Problem and support the machine learning pipeline, the storage infrastructure must meet specific criteria. These requirements are divided into functional requirements (what the system must do) and non-functional requirements (how the system must perform).
+
+\subsection{Functional Requirements}\label{sec:functional_requirements_storage}
+
+\begin{itemize}
+    \item \textbf{Small files, large amount} \\
+    The system must efficiently store and retrieve binary files (images) with sizes ranging typically from 10 KiB to $\approx$1 MiB. The system must handle a large amount of these items without significant performance degradation.
+    \item \textbf{Immutability (Write-Once-Read-Many)} \\
+    Storage must prioritize read operations. Once an image is ingested, it is rarely updated. The system should be optimized for writing once and reading frequently. Updating existing data is not a required feature. Deletion is required, but its performance is not critical.
+    \item \textbf{Flat addressability} \\
+    Images must be identifiable and retrievable via a unique identifier (ID). It must not suffer from directory traversal like in POSIX systems.
+    \item \textbf{Custom metadata} \\
+    Each stored object needs to support custom metadata. Specified metadata may be used as an ID (address) for the stored object. It can maintain a mapping or integrate with an external index to locate these binary files by specific business keys.
+    \item \textbf{Tunable or strong consistency} \\
+    The system must provide strong consistency or guarantee Read-After-Write consistency. This ensures that once a file is successfully stored and acknowledged, it is immediately available for retrieval from any node in the cluster. No node should report missing data immediately after a successful write operation.
+\end{itemize}
+
+\subsection{Non-Functional Requirements}
+\begin{itemize}
+    \item \textbf{Fault Tolerance} \\
+    The solution must be a Distributed File System (DFS) that tolerates node failures. The system must tolerate the failure of one replica of a stored item or of a node that stores data for that item.
+    \item \textbf{Horizontal Scalability} \\
+    The system must be capable of scaling out. It should allow for the addition of new storage nodes to the cluster to increase capacity and throughput without interruption of service.
+    \item \textbf{Throughput for Batch Processing} \\
+    The storage must support high parallel read throughput to feed offline ML jobs (e.g., batch processing) that compute embeddings effectively on large datasets.
+    \item \textbf{Interface Compatibility} \\
+    The system should provide an interface to access the data. POSIX interface is not required.
+\end{itemize}
+
+\section{SeaweedFS}
+Based on the analysis of distributed storage solutions and the theoretical evaluation of storage solution implementations in Section \ref{sec:dfs_implementations} (not all were mentioned -- MinIO, RustFS), SeaweedFS was selected as the optimal solution for the image storage infrastructure (the problem addressed by the thesis). 
+SeaweedFS was specifically optimized to handle a large number of small files and is based on the Haystack architecture, which was created for the same purpose as the motivation for this thesis.
+
+The decision to choose SeaweedFS as the storage solution was highly influenced by experiences and case studies of projects and businesses that deal with similar needs. The decision is also supported by available benchmarks evaluating storage, especially object ones, focusing on the Small File Problem. The following sections point out three main benchmarks and studies.\footnote{Please be aware that presenting (not one's own) benchmarks is difficult to do correctly. Take those benchmarks just like examples -- for a complex understanding, dive into the mentioned studies directly.} 
+
+\subsubsection*{Performance Evaluation of Object Storages}
+The performance data presented in Table \ref{tab:bm1} are derived from the \textit{Performance Evaluation of Object Storages} report (2022) conducted by the NHR (National High Performance Computing) \cite{lackschewitz_performance_2022}. The benchmark used the S3Warp benchmark in Mixed mode\footnote{Designed and created by the MinIO project.}, specifically configured with a 4 KiB object size, to evaluate efficiency in handling large numbers of small files \cite{lackschewitz_performance_2022}. 
+
+The tests were executed on nodes provided by \textit{NHR@Göttingen} (German High-Performance Computing Center). The results demonstrate that, for small-object workloads, critical storage system SeaweedFS performs well compared to both commercial and open-source alternatives in terms of IOPS and also bandwidth. \cite{lackschewitz_performance_2022}
+
+\begin{table}[!ht]\centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{r|r|r}
+         Storage & Mixed IOPS \textit{[obj/s]}  & Mixed Bandwidth \textit{[MiB/s]} \\ \hline \hline
+         SeaweedFS  &  58 836.57 & 137.89 \\
+         Vast       &  36 897.36 & 84.45 \\
+         Ceph       &  35 779.63 & 81.89 \\
+         Oceanstor  &  31 023.44 & 72.71 \\
+         MinIO      &  9 901.16  & 23.20 \\
+    \end{tabular}
+    \caption[Comparison of mixed workload performance]{Comparison of mixed workload performance (4 KiB objects) across different S3 storage systems.\cite{lackschewitz_performance_2022}}
+    \label{tab:bm1}
+\end{table}
+
+\subsubsection*{Sandcrawler Proposal}
+A 2020 proposal from the Sandcrawler project evaluated object storage solutions for handling large volumes of small PDF analysis files, revealing significant performance differences between MinIO and SeaweedFS. The report said that the existing MinIO implementation began to experience slowed insert rates after storing approximately 80 million objects. In contrast, the same benchmark on SeaweedFS demonstrated its scalability by successfully ingesting 200 million objects (about 550 GB), with constant insert times and utilizing only 400 MB of RAM. \cite{newbold_notes_2001}
+
+\subsubsection*{Evaluation of Object Storage Performance using OStoreBench}
+This study was created by researchers from the Institute of Computing Technology, Chinese Academy of Sciences, in collaboration with ByteDance \cite{kang_ostorebench_2020}. In this paper, they introduced new benchmark called OStoreBench. The primary motivation for developing OStoreBench was the inadequacy of existing industry-standard tools, which typically perform simple read/write operations without accounting for complex real-world variables such as request arrival patterns or diverse file size distributions.
+
+OStoreBench evaluates systems by simulating critical paths from three distinct real-world application scenarios: \textit{Online Services} (latency-sensitive, primarily small files following a log-normal distribution), \textit{Big Data Analysis} (throughput-oriented, large files), and \textit{File Backup} (periodic uploads of small files similar to personal cloud storage).\cite{kang_ostorebench_2020}
+
+The benchmark compared three storage systems: Ceph, OpenStack Swift, and SeaweedFS. The experiments revealed that SeaweedFS consistently outperformed the other systems in all three scenarios. In the latency-sensitive Online Service scenario, SeaweedFS achieved an average throughput of 10.8 MB/s, compared to Ceph (1.3 MB/s) and Swift (0.9 MB/s).\cite{kang_ostorebench_2020}
+
+\section{Deployment}
+The selected storage solution, SeaweedFS, was deployed within the Recombee infrastructure to validate its functionality and the requirements outlined in Section \ref{sec:picture_store_requirements}. 
+
+The following text describes the storage deployment at a high level of abstraction. Concrete deployment can be seen in the provided media.
+\subsection{Infrastructure and Hardware}
+The storage cluster was deployed on four dedicated bare-metal servers. All nodes consist of NVMe SSD disks with storage organized by LVM.
+
+Using NVMe drives is critical for this use case, as the "Small File Problem" often saturates mechanical drives (HDDs) due to high IOPS requirements, even if throughput bandwidth is not fully utilized.
+\subsection{Orchestration with Puppet Bolt}
+To ensure the deployment process was reproducible and aligned with Recombee's operational standards, the installation and configuration were orchestrated with Puppet Bolt.
+
+This technology was chosen to maintain the consistency of the Puppet technology already used for managing the provided servers. At the time of implementation, no official or community-supported Puppet module for SeaweedFS existed on the Puppet Forge. 
+
+To address this, a custom lightweight Puppet module was developed specifically for this thesis. This module focuses on booting up the necessary cluster components -- downloading binaries, configuring systemd services, and applying basic configuration files. While currently scoped to bootstrap the cluster for this implementation, the module is designed to expand into a fully featured, public module for the Puppet Forge in the future.
+
+\subsection{Cluster Topology}
+The deployed SeaweedFS cluster consists of multiple components that provide a fully functional solution that meets the requirements for such storage. The Master server, which is an essential storage component, is deployed as a systemd service. This service is deployed with a single replica that lacks HA. The Master server allows HA setup thanks to the Raft LE algorithm, which elects the leader among distributed instances. The architecture of the Master component limits the ability to run multiple replicas and perform load balancing between them. This limitation should not be a problem as pointed out in the above-mentioned studies. Official documentation points out that it is considered not a problem to run just one replica even for large deployment \cite{seaweedfs_seaweedfs_2024} \footnote{For more information, navigate to documentation section Production Setup.}.
+
+Volume services are run on each node. Those services are responsible for the role of the data plane in the cluster. Each volume is aware of its placement (server, datacenter, rack), enabling data replication based on specified QoS. Volume servers run on LVM storage, with NVMe SSD disks. The chosen filesystem for the Volume server is XFS, which is recommended by SeaweedFS Wiki and is described as the most performant for the Haystack solution. \cite{seaweedfs_seaweedfs_2024, beaver_finding_2010} 
+
+Filer service is a component deployed to satisfy functional requirements specified in Section \ref{sec:functional_requirements_storage}. Filer is (not essential for SeaweedFS) a service that manages simple metadata about stored blobs. It allows storage to act as POSIX storage by introducing (artificial) paths to stored blobs. Thanks to Filer, it is possible to list and access blobs as if they were stored at a specified path or URL. Filer is deployed as a standalone systemd service connected to the PostgreSQL database for persistent storage.
+
+Among specified components, the deployment includes several services specifically for management and monitoring. Admin UI provides a graphical interface for the cluster. Worker service is used to automate background maintenance and asynchronous tasks. For observability, SeaweedFS exposes native metrics to a Prometheus instance, which are displayed in Grafana dashboard for visualization of cluster health and performance. This monitoring stack is architected to support future automated alerting extensions.

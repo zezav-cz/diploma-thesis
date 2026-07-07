@@ -1,0 +1,35 @@
+config:
+  ssh:
+    load-config: true
+    host-key-check: false
+    run-as: root
+
+groups:
+  - name: master
+    targets:
+      - uri: srv01
+        facts:
+          dc: 'FSN1-DC16'
+          rack_name: "-1"
+  - name: volume
+    targets:
+      - uri: srv02
+        facts:
+          dc: 'FSN1-DC16'
+          rack_name: "-1"
+          disk: "nvme"
+      - uri: srv03
+        facts:
+          dc: 'FSN1-DC16'
+          rack_name: "-1"
+          disk: "nvme"
+      - uri: srv04
+        facts:
+          dc: 'FSN1-DC16'
+          rack_name: "-1"
+          disk: "nvme"
+      - uri: srv05
+        facts:
+          dc: 'FSN1-DC13'
+          rack_name: "-1"
+          disk: "nvme"

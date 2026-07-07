@@ -1,0 +1,40 @@
+[tools]
+go = '1.24'
+golangci-lint = 'latest'
+task = 'latest'
+lefthook = 'latest'
+"go:github.com/deviceinsight/kafkactl/v5" = "latest"
+uv = "latest"
+
+[settings]
+lockfile = true
+
+[tasks.run]
+description = "Run the application"
+run = "go run main.go"
+
+[tasks.lint]
+description = "Lint go files"
+sources = ["**/*.go"]
+run = "golangci-lint run -c .golangci.yaml ."
+
+[tasks.fmt]
+description = "Format go files"
+sources = ["**/*.go"]
+run = "go fmt ./..."
+
+[tasks.update-deps]
+description = "Update go dependencies (major,patch)"
+run = [
+    "go get -u",
+    "go mod tidy",
+    "go mod vendor"
+]
+
+[tasks.build-load]
+description = "Build and load Docker image into local Docker daemon"
+env = { IMAGE_NAME = "downloader:latest" }
+run = [
+    "docker buildx build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 --platform linux/amd64 -t $IMAGE_NAME .",
+    "kind load docker-image $IMAGE_NAME --name diploma-thesis"
+]
