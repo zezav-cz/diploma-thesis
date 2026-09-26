@@ -24,6 +24,7 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.1)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
     bindata (2.5.1)
     bolt (4.0.0)
@@ -54,6 +55,7 @@ GEM
     concurrent-ruby (1.3.5)
     connection_pool (2.5.4)
     cri (2.15.12)
+    csv (3.3.6)
     deep_merge (1.2.2)
     ed25519 (1.4.0)
     erubi (1.13.1)
@@ -201,7 +203,7 @@ GEM
       windows_error
     rubyntlm (0.6.5)
       base64
-    rubyzip (2.4.1)
+    rubyzip (3.4.0)
     scanf (1.0.0)
     semantic_puppet (1.1.1)
     singleton (0.3.0)
@@ -222,10 +224,11 @@ GEM
       nori (~> 2.0, >= 2.7.1)
       rexml (~> 3.0)
       rubyntlm (~> 0.6.0, >= 0.6.3)
-    winrm-fs (1.3.5)
-      erubi (~> 1.8)
-      logging (>= 1.6.1, < 3.0)
-      rubyzip (~> 2.0)
+    winrm-fs (1.3.7)
+      benchmark
+      csv (~> 3.3)
+      logger
+      rubyzip (~> 3.4)
       winrm (~> 2.0)
     yard (0.9.36)
 
