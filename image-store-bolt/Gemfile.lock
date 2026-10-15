@@ -170,9 +170,9 @@ GEM
       puppet-lint (>= 2.1, < 4)
     puppet-resource_api (1.9.0)
       hocon (>= 1.0)
-    puppet-strings (4.1.3)
+    puppet-strings (4.1.2)
       rgen (~> 0.9)
-      yard (~> 0.9, < 0.9.37)
+      yard (~> 0.9)
     puppet_forge (5.0.4)
       faraday (~> 2.0)
       faraday-follow_redirects (~> 0.3.0)
@@ -227,7 +227,7 @@ GEM
       logging (>= 1.6.1, < 3.0)
       rubyzip (~> 2.0)
       winrm (~> 2.0)
-    yard (0.9.36)
+    yard (0.9.44)
 
 PLATFORMS
   x86_64-linux
