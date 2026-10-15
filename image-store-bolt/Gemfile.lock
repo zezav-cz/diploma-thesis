@@ -102,7 +102,7 @@ GEM
     io-console (0.8.1)
     jmespath (1.6.2)
     json (2.16.0)
-    jwt (2.10.2)
+    jwt (2.10.3)
       base64
     little-plugger (1.1.4)
     locale (2.1.4)
